@@ -7,36 +7,9 @@ pipeline {
     }
 
     stages {
-        stage('Prepare Repository') {
+        stage('Clone Repository') {
             steps {
-                script {
-                    // If folder exists, pull latest changes; else clone
-                    if (fileExists('jenkin')) {
-                        dir('jenkin') {
-                            withCredentials([usernamePassword(
-                                credentialsId: 'github-credentials',
-                                usernameVariable: 'GIT_USER',
-                                passwordVariable: 'GIT_TOKEN'
-                            )]) {
-                                sh """
-                                git config user.name "$GIT_USER"
-                                git config user.password "$GIT_TOKEN"
-                                git pull origin main
-                                """
-                            }
-                        }
-                    } else {
-                        withCredentials([usernamePassword(
-                            credentialsId: 'github-credentials',
-                            usernameVariable: 'GIT_USER',
-                            passwordVariable: 'GIT_TOKEN'
-                        )]) {
-                            sh """
-                            git clone https://\$GIT_USER:\$GIT_TOKEN@github.com/RekhaTakkalapally/jenkin.git
-                            """
-                        }
-                    }
-                }
+                sh "git clone https://github.com/RekhaTakkalapally/jenkin.git"
             }
         }
 
@@ -48,10 +21,10 @@ pipeline {
             }
         }
 
-        stage('Push to Docker Hub') {
+        stage('Push Docker Image') {
             steps {
                 withCredentials([usernamePassword(
-                    credentialsId: 'myapp',  // Docker Hub credentials
+                    credentialsId: 'myapp', // Docker Hub credentials
                     usernameVariable: 'DOCKER_USER',
                     passwordVariable: 'DOCKER_PASS'
                 )]) {
